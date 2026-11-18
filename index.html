@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ผจญภัยดินแดนอัลกอริทึม</title>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* แนวคิดเลย์เอาต์: เมืองกลางคืนแสงนีออน, แผงสีเข้มขอบเรืองแสง, ผังงานสีพาสเทลอยู่บนแผงเข้ม */
+  --sky-top:#0d0626; --sky-low:#3a1a70;
+  --wood:#17171f; --wood-dark:#7ddc00; --wood-light:#ffd400;
+  --ink:#f4effe; --ink-soft:#c0b4ea; --ink-d:#1f2f66;
+  --card:#1a1136; --line:#5b3fb5; --edge:#9b6bff;
+  --opt:#2a1d55; --opt-edge:#7c4dff;
+  --sun:#ffd400; --sun-edge:#ff9a00;
+  --go:#5ccf22; --go-deep:#2f8f12;
+  --bad:#ff4d5e; --violet:#a66bff;
+  --display:"Mitr","Sarabun",system-ui,sans-serif;
+  --body:"Sarabun","Mitr",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--body);color:var(--ink);background:linear-gradient(var(--sky-top),var(--sky-low) 70%,#1a0b38);overflow:hidden;font-size:17px}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:4px solid var(--violet);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+
+/* ---------- ฉากหลัง ---------- */
+.scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sunball{position:absolute;top:6%;right:9%;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 38% 36%,#ffffff,#dfe6ff 55%,#aab6ea 68%,rgba(170,182,234,0) 71%);box-shadow:0 0 60px 18px rgba(190,200,255,.28)}
+.cloud{position:absolute;height:34px;border-radius:40px;background:#6a4bb0;opacity:.28;animation:drift 60s linear infinite}
+.cloud::before,.cloud::after{content:"";position:absolute;background:#6a4bb0;border-radius:50%}
+.cloud::before{width:46px;height:46px;left:18px;top:-22px}
+.cloud::after{width:34px;height:34px;right:20px;top:-14px}
+.c1{width:130px;top:14%;left:30%}.c2{width:100px;top:26%;left:70%;animation-duration:85s}.c3{width:150px;top:7%;left:58%;animation-duration:110s}
+@keyframes drift{from{transform:translateX(-40px)}50%{transform:translateX(40px)}to{transform:translateX(-40px)}}
+.hills{position:absolute;left:0;bottom:0;width:100%;height:62%}
+
+#app{position:relative;z-index:1;height:100%}
+.screen{height:100%;display:none}
+.screen.on{display:grid}
+
+/* ---------- ป้ายไม้ ---------- */
+.sign{background:linear-gradient(#2c2c38,var(--wood));color:#fff8e1;border:3px solid var(--wood-dark);border-radius:16px;box-shadow:0 0 16px rgba(125,220,0,.55),0 8px 18px rgba(0,0,0,.5);font-family:var(--display)}
+
+/* ---------- หน้าแผนที่ ---------- */
+#home{grid-template-rows:1fr;overflow:auto}
+.home-in{max-width:1080px;width:100%;margin:0 auto;padding:22px 16px 40px;display:flex;flex-direction:column;gap:18px}
+.title-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.logo{padding:12px 22px 14px;transform:rotate(-2deg)}
+.logo small{display:block;font-size:.95rem;font-weight:400;color:#ffe9b8;letter-spacing:.02em}
+.logo h1{font-size:clamp(1.7rem,4.6vw,2.7rem);line-height:1.15;color:var(--wood-light);text-shadow:0 3px 0 #000,0 0 18px rgba(255,212,0,.45)}
+.logo h1 b{color:#b9f27c;font-weight:600}
+.course{background:rgba(24,15,52,.93);border:3px solid var(--edge);border-radius:18px;padding:12px 18px;box-shadow:0 6px 16px rgba(20,60,120,.18);max-width:430px}
+.course strong{font-family:var(--display);font-weight:500;font-size:1.08rem;display:block}
+.course span{color:var(--ink-soft);font-size:.95rem}
+.total{display:flex;align-items:center;gap:8px;font-family:var(--display);margin-top:6px}
+.howto{background:rgba(24,15,52,.93);border-radius:18px;border:3px solid var(--edge);padding:12px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;box-shadow:0 6px 16px rgba(20,60,120,.18)}
+.howto div{display:flex;gap:10px;align-items:center;font-size:.98rem;line-height:1.35}
+.howto i{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:var(--display);color:#fff;font-size:1.1rem}
+.howto div:nth-child(1) i{background:var(--sun-edge)}.howto div:nth-child(2) i{background:var(--go)}.howto div:nth-child(3) i{background:var(--violet)}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:14px}
+.stop{position:relative;text-align:left;background:var(--card);border:3px solid var(--edge);border-radius:20px;padding:14px 14px 12px;box-shadow:0 6px 0 #4a2fa8,0 12px 18px rgba(20,60,120,.18);display:flex;flex-direction:column;gap:6px;transition:transform .15s}
+.stop:hover{transform:translateY(-4px)}
+.stop:active{transform:translateY(2px)}
+.stop .no{align-self:flex-start;background:var(--violet);color:#fff;font-family:var(--display);border-radius:999px;padding:1px 12px;font-size:.9rem}
+.stop h3{font-size:1.06rem;font-weight:500;line-height:1.3;min-height:2.6em}
+.stop .tag{font-size:.85rem;color:var(--ink-soft)}
+.stars{display:flex;gap:3px}
+.star{width:22px;height:22px;fill:#463c78}
+.star.on{fill:var(--sun);stroke:var(--sun-edge);stroke-width:1.2}
+.stop.done{box-shadow:0 6px 0 #3f9a1c,0 12px 18px rgba(20,60,120,.18)}
+
+/* ---------- หน้าเล่น ---------- */
+.sec{font-family:var(--display);font-weight:500;font-size:1.15rem;color:var(--sun);text-shadow:0 2px 0 #000,0 0 10px #0d0626,0 0 10px #0d0626;margin:4px 0 -6px}
+.legend{background:rgba(24,15,52,.93);border-radius:18px;border:3px solid var(--edge);padding:12px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;box-shadow:0 6px 16px rgba(20,60,120,.18)}
+.legend div{display:flex;flex-direction:column;gap:4px;font-size:.92rem;line-height:1.35}
+.legend .shape{position:relative;height:40px;width:110px}
+.legend b{font-family:var(--display);font-weight:500}
+#play{grid-template-rows:auto 1fr}
+.hud{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px 6px}
+.hud .where{padding:6px 16px 8px;max-width:60%}
+.hud .where small{display:block;font-size:.78rem;color:#ffe9b8;font-weight:400}
+.hud .where b{font-weight:500;font-size:1rem;line-height:1.25;display:block}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tool{background:rgba(24,15,52,.95);border:3px solid var(--edge);border-radius:999px;padding:6px 14px;font-family:var(--display);font-size:.9rem;box-shadow:0 4px 0 #4a2fa8}
+.tool[aria-pressed="false"]{opacity:.65;text-decoration:line-through}
+.mid{min-height:0;padding:6px 16px 16px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(290px,.7fr);gap:14px}
+.panel{min-height:0;overflow:auto;background:var(--card);border:5px solid var(--edge);border-radius:26px;box-shadow:0 0 0 3px #7ddc00,0 0 22px rgba(125,220,0,.45),0 14px 26px rgba(0,0,0,.5);padding:16px;display:flex;flex-direction:column;gap:12px}
+.task{display:flex;gap:12px;align-items:flex-start}
+.task svg{flex:none}
+.task p{margin:0;background:var(--opt);border:3px solid var(--line);border-radius:16px;padding:10px 14px;font-weight:600;line-height:1.55;flex:1}
+.canvas{display:flex;flex-direction:column;align-items:stretch}
+.row{display:grid;grid-template-columns:minmax(0,300px);justify-content:center;gap:12px}
+.row.two{grid-template-columns:repeat(2,minmax(0,300px))}
+.cell{display:flex;flex-direction:column;align-items:center}
+.arrow{color:var(--ink);font-size:.95rem;line-height:1.5}
+.lab{font-family:var(--display);font-size:.82rem;border-radius:999px;padding:0 12px;margin-bottom:3px;color:#fff;background:var(--go-deep)}
+.lab.f{background:var(--bad)}
+.note{font-family:var(--display);font-size:.9rem;color:var(--violet);border:2px dashed var(--violet);border-radius:12px;padding:6px 12px;text-align:center;background:var(--opt);color:#dccbff}
+.slot{position:relative;width:100%;min-height:62px;border:0;background:none;padding:10px 34px;display:grid;place-items:center;text-align:center;font-size:1rem;font-weight:600;line-height:1.35;color:var(--ink-d)}
+.slot[data-s="dec"]{min-height:92px;padding:22px 58px}
+.slot[data-s="io"]{padding:10px 44px}
+.slot svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.slot span{position:relative}
+.slot .ph{color:#5a6690;font-weight:400}
+.slot .num{position:absolute;left:-6px;top:-8px;width:26px;height:26px;border-radius:50%;background:#fff;color:#1a1136;font-family:var(--display);font-size:.85rem;display:grid;place-items:center;z-index:1}
+.slot.act svg *{stroke:var(--sun);stroke-width:6}
+.slot.act .num{background:var(--sun)}
+.slot.ok svg *{stroke:var(--go);stroke-width:5}
+.slot.bad svg *{stroke:var(--bad);stroke-width:5}
+.fix{font-size:.82rem;color:var(--bad);font-weight:700;min-height:1.1em}
+.box h3{font-size:1.02rem;font-weight:500;margin-bottom:6px}
+.syms{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sym{background:var(--opt);border:3px solid var(--line);border-radius:14px;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.86rem;line-height:1.25}
+.sym .shape{position:relative;width:86px;height:34px}
+.shape svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sym.on{border-color:var(--sun);background:#4b3a8f;box-shadow:0 0 12px rgba(255,212,0,.5)}
+.cards{display:flex;flex-direction:column;gap:7px}
+.card{text-align:left;background:var(--opt);border:3px solid var(--opt-edge);border-radius:14px;padding:8px 12px;font-size:.98rem;font-weight:600;line-height:1.35;box-shadow:0 3px 0 var(--opt-edge)}
+.card.used{opacity:.45;box-shadow:none}
+.msg{min-height:1.5em;font-weight:700;line-height:1.45;margin:0}
+.msg.no{color:var(--bad)}.msg.yes{color:var(--go)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:3px solid #fff;border-radius:999px;padding:9px 20px;font-family:var(--display);font-size:1rem;color:#fff;background:var(--violet);box-shadow:0 4px 0 #4a34a0}
+.btn.g{background:var(--go);box-shadow:0 4px 0 var(--go-deep)}
+.btn.w{background:#3b3550;box-shadow:0 4px 0 #1d1930}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* ---------- ผลลัพธ์ ---------- */
+.over{position:fixed;inset:0;z-index:5;background:rgba(18,40,90,.55);display:none;place-items:center;padding:16px}
+.over.on{display:grid}
+.res{width:min(460px,100%);background:var(--card);border:5px solid var(--edge);border-radius:28px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;box-shadow:0 20px 40px rgba(0,0,0,.35)}
+.res h2{font-size:1.7rem;font-weight:600}
+.res .stars .star{width:54px;height:54px}
+.res p{margin:0;line-height:1.55}
+.res .row2{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+
+/* ---------- ผู้เล่นและใบส่งคะแนน ---------- */
+.player{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:.95rem}
+.player b{font-family:var(--display);font-weight:500}
+.linkbtn{background:none;border:0;padding:0;color:var(--sun);font-family:var(--display);font-size:.9rem;text-decoration:underline;text-underline-offset:3px}
+.sendbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.form{width:min(460px,100%);text-align:left;align-items:stretch}
+.form label{font-family:var(--display);font-size:.95rem;display:flex;flex-direction:column;gap:4px}
+.form input,.form textarea{font:inherit;color:var(--ink);background:var(--opt);border:3px solid var(--opt-edge);border-radius:12px;padding:9px 12px}
+.form input:focus,.form textarea:focus{outline:none;border-color:var(--sun)}
+.form textarea{min-height:190px;resize:vertical;font-size:.9rem;line-height:1.5;font-variant-numeric:tabular-nums}
+.form .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.form input{min-width:0;width:100%}
+.form .hint{margin:0;font-size:.9rem;color:var(--ink-soft);line-height:1.5}
+.form .err{margin:0;color:var(--bad);font-weight:700;min-height:1.3em}
+.form .ok{color:var(--go)}
+@media (max-width:820px){
+  body{font-size:16px}
+  .howto{grid-template-columns:1fr}.legend{grid-template-columns:1fr 1fr}
+  #play{overflow:auto;grid-template-rows:auto auto}
+  .mid{grid-template-columns:1fr}.panel{overflow:visible}
+  .hud .where{max-width:100%}
+  .slot{padding:10px 22px;font-size:.92rem}.slot[data-s="dec"]{padding:22px 34px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="scene" aria-hidden="true">
+  <div class="sunball"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <svg class="hills" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMax slice"><rect x="0" y="242" width="101" height="258" fill="#2a1560"/><rect x="32" y="256" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="32" y="282" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="10" y="308" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="76" y="308" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="32" y="334" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="76" y="360" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="10" y="386" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="32" y="386" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="102" y="149" width="75" height="351" fill="#2a1560"/><rect x="156" y="163" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="112" y="189" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="112" y="293" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="156" y="423" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="134" y="449" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="183" y="106" width="105" height="394" fill="#2a1560"/><rect x="237" y="120" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="193" y="172" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="193" y="224" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="237" y="224" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="237" y="250" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="259" y="250" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="193" y="276" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="215" y="276" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="259" y="302" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="237" y="328" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="215" y="354" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="193" y="380" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="259" y="380" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="215" y="406" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="291" y="154" width="126" height="346" fill="#2a1560"/><rect x="323" y="168" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="301" y="220" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="323" y="246" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="345" y="246" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="323" y="272" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="367" y="298" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="389" y="298" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="301" y="324" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="345" y="324" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="367" y="324" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="301" y="350" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="323" y="350" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="345" y="376" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="367" y="402" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="389" y="428" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="323" y="454" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="418" y="217" width="67" height="283" fill="#2a1560"/><rect x="450" y="231" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="450" y="257" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="491" y="180" width="75" height="320" fill="#2a1560"/><rect x="523" y="194" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="545" y="194" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="523" y="220" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="501" y="246" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="545" y="246" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="545" y="272" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="501" y="324" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="545" y="376" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="501" y="402" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="574" y="134" width="125" height="366" fill="#2a1560"/><rect x="628" y="174" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="650" y="174" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="584" y="200" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="584" y="226" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="650" y="278" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="606" y="382" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="650" y="382" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="672" y="382" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="628" y="434" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="704" y="280" width="83" height="220" fill="#2a1560"/><rect x="736" y="294" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="758" y="320" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="736" y="346" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="736" y="450" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="795" y="101" width="114" height="399" fill="#2a1560"/><rect x="827" y="115" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="849" y="141" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="893" y="141" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="805" y="167" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="805" y="193" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="849" y="245" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="805" y="271" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="805" y="297" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="893" y="323" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="849" y="349" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="827" y="401" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="849" y="401" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="849" y="427" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="871" y="453" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="914" y="250" width="110" height="250" fill="#2a1560"/><rect x="968" y="264" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="968" y="316" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="990" y="420" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="946" y="446" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="968" y="446" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1029" y="204" width="96" height="296" fill="#2a1560"/><rect x="1105" y="244" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1105" y="296" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1039" y="322" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="1061" y="322" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="1105" y="374" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="1061" y="400" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1061" y="452" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="1132" y="280" width="122" height="220" fill="#2a1560"/><rect x="1142" y="294" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="1186" y="294" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1164" y="346" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1208" y="346" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="1208" y="372" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="1208" y="398" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="1142" y="450" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="1186" y="450" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="0" y="352" width="92" height="148" fill="#170b3a"/><rect x="54" y="366" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="54" y="392" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="10" y="418" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="76" y="418" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="32" y="444" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="54" y="444" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="92" y="310" width="78" height="190" fill="#170b3a"/><rect x="102" y="324" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="124" y="324" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="146" y="324" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="102" y="402" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="102" y="454" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="124" y="454" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="173" y="319" width="108" height="181" fill="#170b3a"/><rect x="249" y="333" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="227" y="359" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="183" y="385" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="249" y="385" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="183" y="411" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="205" y="411" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="249" y="411" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="249" y="437" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="205" y="463" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="288" y="283" width="76" height="217" fill="#170b3a"/><rect x="298" y="297" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="320" y="349" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="298" y="375" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="320" y="375" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="342" y="401" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="298" y="427" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="342" y="427" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="342" y="453" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="368" y="265" width="95" height="235" fill="#170b3a"/><rect x="378" y="279" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="400" y="279" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="422" y="279" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="444" y="279" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="378" y="305" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="422" y="305" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="378" y="331" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="422" y="331" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="444" y="331" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="378" y="357" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="444" y="383" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="444" y="409" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="378" y="435" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="444" y="435" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="444" y="461" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="471" y="394" width="121" height="106" fill="#170b3a"/><rect x="547" y="408" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="569" y="408" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="547" y="434" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="547" y="460" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="598" y="302" width="80" height="198" fill="#170b3a"/><rect x="608" y="316" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="630" y="342" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="652" y="342" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="608" y="394" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="630" y="394" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="652" y="394" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="652" y="420" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="608" y="446" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="680" y="307" width="88" height="193" fill="#170b3a"/><rect x="712" y="321" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="690" y="347" width="9" height="13" fill="#ffb347" opacity="0.7"/><rect x="734" y="347" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="734" y="451" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="773" y="282" width="117" height="218" fill="#170b3a"/><rect x="805" y="296" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="827" y="296" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="783" y="322" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="783" y="348" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="871" y="348" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="805" y="374" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="871" y="374" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="827" y="400" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="783" y="426" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="805" y="426" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="827" y="426" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="783" y="452" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="805" y="452" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="849" y="452" width="9" height="13" fill="#8be9ff" opacity="0.7"/><rect x="871" y="452" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="898" y="318" width="66" height="182" fill="#170b3a"/><rect x="930" y="384" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="930" y="410" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="908" y="436" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="908" y="462" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="968" y="261" width="99" height="239" fill="#170b3a"/><rect x="978" y="301" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="978" y="327" width="9" height="13" fill="#c59bff" opacity="0.9"/><rect x="1022" y="327" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="1000" y="379" width="9" height="13" fill="#8be9ff" opacity="0.5"/><rect x="1044" y="379" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="1022" y="405" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="1000" y="431" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="1074" y="368" width="91" height="132" fill="#170b3a"/><rect x="1106" y="382" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="1128" y="382" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1084" y="408" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1084" y="460" width="9" height="13" fill="#ffd76a" opacity="0.5"/><rect x="1150" y="460" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="1172" y="295" width="70" height="205" fill="#170b3a"/><rect x="1182" y="309" width="9" height="13" fill="#ffd76a" opacity="0.7"/><rect x="1204" y="309" width="9" height="13" fill="#ffd76a" opacity="0.9"/><rect x="1204" y="361" width="9" height="13" fill="#c59bff" opacity="0.5"/><rect x="1204" y="387" width="9" height="13" fill="#ffb347" opacity="0.9"/><rect x="1182" y="413" width="9" height="13" fill="#8be9ff" opacity="0.9"/><rect x="1226" y="413" width="9" height="13" fill="#ffb347" opacity="0.5"/><rect x="1204" y="439" width="9" height="13" fill="#c59bff" opacity="0.7"/><rect x="0" y="470" width="1200" height="30" fill="#0b0520"/></svg>
+</div>
+
+<div id="app">
+  <main id="home" class="screen on">
+    <div class="home-in">
+      <div class="title-row">
+        <div class="sign logo">
+          <small>ภารกิจฝึกเขียนผังงาน (Flowchart) · รหัสวิชา 21900-1002</small>
+          <h1>ผจญภัย<b>ดินแดนอัลกอริทึม</b></h1>
+        </div>
+        <div class="course">
+          <strong>โครงสร้างข้อมูลและอัลกอริทึมเบื้องต้น</strong>
+          <span>หน่วยอัลกอริทึม · 15 ภารกิจ ต่อผังงานด้วยตัวเอง</span>
+          <div class="total"><svg class="star on" viewBox="0 0 24 24"><use href="#i-star"/></svg><span id="total">0 / 45 ดาว</span></div>
+          <div class="player">ผู้เล่น: <b id="pName">-</b><button class="linkbtn" id="bEditName">แก้ชื่อ</button></div>
+        </div>
+      </div>
+      <div class="howto">
+        <div><i>1</i><span><b>แตะช่องในผังงาน</b><br>เลือกช่องที่จะเติม</span></div>
+        <div><i>2</i><span><b>เลือกสัญลักษณ์และข้อความ</b><br>ให้ตรงกับขั้นตอนนั้น</span></div>
+        <div><i>3</i><span><b>กดตรวจผังงาน</b><br>ถูกในครั้งแรกได้ 3 ดาว</span></div>
+      </div>
+      <div class="sendbar">
+        <button class="btn g" id="bSlip">ส่งคะแนนให้ครู</button>
+        <button class="btn w" id="bTeacher">สำหรับครู: ตรวจใบคะแนน</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div id="map" style="display:flex;flex-direction:column;gap:14px"></div>
+    </div>
+  </main>
+
+  <main id="play" class="screen">
+    <div class="hud">
+      <div class="sign where"><small id="hType"></small><b id="hName"></b></div>
+      <div class="tools">
+        <button class="tool" id="tSound" aria-pressed="true">เสียง</button>
+        <button class="tool" id="tExit">แผนที่</button>
+      </div>
+    </div>
+    <div class="mid">
+      <section class="panel">
+        <div class="task">
+          <svg viewBox="0 0 64 72" width="52" height="58" aria-hidden="true">
+            <line x1="32" y1="4" x2="32" y2="14" stroke="#1f2f66" stroke-width="3"/><circle cx="32" cy="5" r="4" fill="#ff4d6d"/>
+            <rect x="12" y="12" width="40" height="28" rx="10" fill="#fff" stroke="#1f2f66" stroke-width="3"/>
+            <rect x="18" y="19" width="28" height="14" rx="7" fill="#16376f"/>
+            <circle cx="26" cy="26" r="3.5" fill="#7df9ff"/><circle cx="38" cy="26" r="3.5" fill="#7df9ff"/>
+            <rect x="18" y="42" width="28" height="20" rx="7" fill="#ffc533" stroke="#1f2f66" stroke-width="3"/>
+            <rect x="21" y="62" width="8" height="9" rx="3" fill="#1f2f66"/><rect x="35" y="62" width="8" height="9" rx="3" fill="#1f2f66"/>
+          </svg>
+          <p id="task"></p>
+        </div>
+        <div class="canvas" id="canvas"></div>
+      </section>
+      <section class="panel">
+        <div class="box"><h3 id="boxH">ช่องที่ 1: เลือกสัญลักษณ์</h3><div class="syms" id="syms"></div></div>
+        <div class="box"><h3>เลือกข้อความของขั้นตอนนี้</h3><div class="cards" id="cards"></div></div>
+        <p class="msg" id="msg" aria-live="polite"></p>
+        <div class="acts">
+          <button class="btn g" id="bCheck">ตรวจผังงาน</button>
+          <button class="btn" id="bShow">ดูเฉลย</button>
+          <button class="btn w" id="bReset">เริ่มใหม่</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="over" id="nameDlg"><form class="res form" id="nameForm" role="dialog" aria-modal="true" aria-labelledby="nH">
+  <h2 id="nH">ลงชื่อก่อนเริ่มภารกิจ</h2>
+  <p class="hint">ชื่อนี้จะแสดงในใบส่งคะแนนให้ครู</p>
+  <label for="fName">ชื่อ-นามสกุล<input id="fName" autocomplete="name" maxlength="60" required></label>
+  <div class="two">
+    <label for="fNo">เลขที่<input id="fNo" inputmode="numeric" maxlength="6" required></label>
+    <label for="fRoom">ชั้น/ห้อง<input id="fRoom" maxlength="20" placeholder="เช่น ปวช.1/2" required></label>
+  </div>
+  <p class="err" id="fErr"></p>
+  <button class="btn g" type="submit">เริ่มภารกิจ</button>
+</form></div>
+
+<div class="over" id="slipDlg"><div class="res form" role="dialog" aria-modal="true" aria-labelledby="sH">
+  <h2 id="sH">ใบส่งคะแนน</h2>
+  <p class="hint">กดคัดลอก แล้ววางส่งในงานของ Google Classroom หรือช่องทางที่ครูกำหนด ห้ามแก้ข้อความ เพราะรหัสตรวจจะไม่ตรง</p>
+  <textarea id="slipText" readonly aria-label="ใบส่งคะแนน"></textarea>
+  <p class="err" id="slipMsg"></p>
+  <div class="row2"><button class="btn g" id="bCopy">คัดลอกใบคะแนน</button><button class="btn w" id="bSlipClose">ปิด</button></div>
+</div></div>
+
+<div class="over" id="teachDlg"><div class="res form" role="dialog" aria-modal="true" aria-labelledby="tH">
+  <h2 id="tH">ตรวจใบคะแนนของนักเรียน</h2>
+  <p class="hint">วางใบคะแนนที่นักเรียนส่งมาทั้งหมด แล้วกดตรวจ ระบบจะบอกว่าคะแนนถูกแก้ไขหรือไม่</p>
+  <textarea id="teachText" aria-label="ใบคะแนนที่นักเรียนส่ง"></textarea>
+  <p class="err" id="teachMsg" aria-live="polite"></p>
+  <div class="row2"><button class="btn g" id="bVerify">ตรวจใบคะแนน</button><button class="btn w" id="bTeachClose">ปิด</button></div>
+</div></div>
+
+<div class="over" id="over"><div class="res" role="dialog" aria-modal="true" aria-labelledby="rH">
+  <h2 id="rH"></h2><div class="stars" id="rStars"></div><p id="rP"></p>
+  <div class="row2" id="rRow"></div>
+</div></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6L2.5 9.5l6.6-.8z"/></symbol>
+</svg>
+
+<script>
+/* ข้อมูลภารกิจ: rows คือผังงานเฉลย, s(ข้อความ, สัญลักษณ์, ป้ายทางเลือก), n(หมายเหตุ, ป้าย), extra คือการ์ดหลอก */
+const s=(x,sym,l)=>({x,s:sym,l}), n=(t,l)=>({n:t,l});
+const A='เริ่มต้น', Z='สิ้นสุด', T='จริง', F='เท็จ';
+const TYPES={seq:'ผังงานแบบเรียงลำดับ (Sequence)',sel:'ผังงานแบบมีเงื่อนไข (Selection)',loop:'ผังงานแบบทำซ้ำ (Loop)'};
+const M=[
+{y:'seq',t:'พื้นที่สี่เหลี่ยมผืนผ้า',p:'จงเขียนผังงานคำนวณหาพื้นที่สี่เหลี่ยมผืนผ้า โดยรับค่าความกว้างและความยาวมาคำนวณตามสูตร Area = Width × Length แล้วแสดงค่าพื้นที่ออกทางหน้าจอ',
+ rows:[[s(A,'term')],[s('รับค่า Width, Length','io')],[s('Area = Width × Length','proc')],[s('แสดงค่า Area','io')],[s(Z,'term')]],extra:['Area = Width + Length'],
+ e:'รับค่าและแสดงผลใช้สี่เหลี่ยมด้านขนาน ส่วนการคำนวณตามสูตรใช้สี่เหลี่ยมผืนผ้า ทำงานจากบนลงล่างโดยไม่มีการตัดสินใจ'},
+{y:'seq',t:'พื้นที่สามเหลี่ยม',p:'จงเขียนผังงานคำนวณหาพื้นที่สามเหลี่ยม โดยรับค่าความยาวฐานและความสูง คำนวณตามสูตร Area = 0.5 × Base × Height แล้วแสดงค่าพื้นที่',
+ rows:[[s(A,'term')],[s('รับค่า Base, Height','io')],[s('Area = 0.5 × Base × Height','proc')],[s('แสดงค่า Area','io')],[s(Z,'term')]],extra:['Area = Base × Height'],
+ e:'ต้องรับค่าก่อนจึงคำนวณได้ และต้องคำนวณก่อนจึงแสดงผลได้ ลำดับของขั้นตอนจึงสลับกันไม่ได้'},
+{y:'seq',t:'คำนวณเงินทอน',p:'ร้านค้าต้องการผังงานคำนวณเงินทอน โดยรับราคาสินค้า (Price) และจำนวนเงินที่ลูกค้าจ่าย (Pay) แล้วแสดงเงินทอน (Change)',
+ rows:[[s(A,'term')],[s('รับค่า Price, Pay','io')],[s('Change = Pay − Price','proc')],[s('แสดงค่า Change','io')],[s(Z,'term')]],extra:['Change = Price − Pay'],
+ e:'เงินทอน = เงินที่จ่าย − ราคาสินค้า ถ้าสลับเป็น Price − Pay จะได้ค่าติดลบ'},
+{y:'sel',t:'เลือกซื้อโทรศัพท์',p:'ตัดสินใจเลือกซื้อโทรศัพท์จากจำนวนเงินที่มี ถ้ามีเงินมากกว่า 10,000 บาท ซื้อ iPhone 18 Pro ถ้าไม่ถึง ซื้อ Samsung Galaxy A07',
+ rows:[[s(A,'term')],[s('รับค่าจำนวนเงิน Money','io')],[s('Money > 10,000 ?','dec')],[s('ซื้อ iPhone 18 Pro','proc',T),s('ซื้อ Samsung Galaxy A07','proc',F)],[s(Z,'term')]],extra:['Money = 10,000 ?'],
+ e:'ตรวจเงื่อนไข Money > 10,000 ด้วยสี่เหลี่ยมขนมเปียกปูน ทางจริงซื้อ iPhone 18 Pro ทางเท็จซื้อ Samsung Galaxy A07 แล้วทั้งสองทางมาบรรจบที่สิ้นสุด'},
+{y:'sel',t:'เลขคู่หรือเลขคี่',p:'จงเขียนผังงานรับค่าจำนวนเต็ม n แล้วตรวจสอบว่าเป็นเลขคู่หรือเลขคี่ พร้อมแสดงผล',
+ rows:[[s(A,'term')],[s('รับค่าจำนวนเต็ม n','io')],[s('n หารด้วย 2 ลงตัว ?','dec')],[s('แสดงผล “เลขคู่”','io',T),s('แสดงผล “เลขคี่”','io',F)],[s(Z,'term')]],extra:['n = n + 2'],
+ e:'ถ้า n หารด้วย 2 ลงตัวเป็นเลขคู่ ถ้าไม่ลงตัวเป็นเลขคี่ การแสดงผลใช้สี่เหลี่ยมด้านขนาน'},
+{y:'sel',t:'ผ่านหรือไม่ผ่าน',p:'จงเขียนผังงานรับคะแนนสอบ (Score) ถ้าคะแนนตั้งแต่ 50 ขึ้นไปให้แสดงผลว่า ผ่าน ถ้าต่ำกว่า 50 ให้แสดงผลว่า ไม่ผ่าน',
+ rows:[[s(A,'term')],[s('รับค่า Score','io')],[s('Score ≥ 50 ?','dec')],[s('แสดงผล “ผ่าน”','io',T),s('แสดงผล “ไม่ผ่าน”','io',F)],[s(Z,'term')]],extra:['Score > 50 ?'],
+ e:'“ตั้งแต่ 50 ขึ้นไป” รวมคะแนน 50 ด้วย จึงต้องใช้ ≥ ไม่ใช่ >'},
+{y:'loop',t:'นับเลขถึง 10',p:'กำหนดค่าเริ่มต้น sum = 0 แล้วเพิ่มค่าทีละ 1 (sum = sum + 1) ตรวจสอบว่า sum = 10 หรือไม่ ถ้าจริงให้แสดงเลข 10 ถ้าไม่จริงให้กลับไปเพิ่มค่า',
+ rows:[[s(A,'term')],[s('sum = 0','proc')],[s('sum = sum + 1','proc')],[s('sum = 10 ?','dec')],[s('แสดงค่า sum','io',T),n('↺ วนกลับไปช่องที่ 3',F)],[s(Z,'term')]],extra:['sum = sum + 10'],
+ e:'เป็นการทำซ้ำแบบตรวจเงื่อนไขหลังทำ (Post-test) คำสั่ง sum = sum + 1 ถูกทำ 10 ครั้งจน sum = 10 จึงแสดงผลและจบ'},
+{y:'loop',t:'แสดงเลข 1 ถึง 5',p:'จงเขียนผังงานแสดงเลข 1 ถึง 5 โดยใช้ตัวแปร i เริ่มที่ 1 ตรวจเงื่อนไข i ≤ 5 ก่อนทำซ้ำทุกครั้ง',
+ rows:[[s(A,'term')],[s('i = 1','proc')],[s('i ≤ 5 ?','dec')],[s('แสดงค่า i','io',T),n('ออกจากการทำซ้ำ ไปที่สิ้นสุด',F)],[s('i = i + 1','proc'),null],[n('↺ วนกลับไปช่องที่ 3'),null],[s(Z,'term')]],extra:['i = 5'],
+ e:'เป็นการทำซ้ำแบบตรวจเงื่อนไขก่อนทำ (Pre-test) ต้องมี i = i + 1 เพื่อเปลี่ยนค่าตัวแปร ไม่เช่นนั้นจะวนซ้ำไม่สิ้นสุด'},
+{y:'loop',t:'ผลรวม 1 ถึง 10',p:'จงเขียนผังงานหาผลรวมของเลข 1 ถึง 10 โดยใช้ sum เก็บผลรวม และ i เป็นตัวนับ แล้วแสดงค่าผลรวม',
+ rows:[[s(A,'term')],[s('sum = 0, i = 1','proc')],[s('i ≤ 10 ?','dec')],[s('sum = sum + i','proc',T),n('ออกจากการทำซ้ำ ไปแสดงผล',F)],[s('i = i + 1','proc'),null],[n('↺ วนกลับไปช่องที่ 3'),null],[s('แสดงค่า sum','io')],[s(Z,'term')]],extra:['sum = sum + 1'],
+ e:'แต่ละรอบบวก i เข้าไปใน sum แล้วเพิ่ม i ทีละ 1 เมื่อ i เกิน 10 จึงออกจากการทำซ้ำ ได้ sum = 55'},
+{y:'sel',t:'ควรดูทีวีแนวไหนดี',p:'อยู่บ้านแล้วเปิดดูทีวี ถามตัวเองทีละข้อ ถ้าอยากดูแนวตลกให้ดูบิ๊กแบงทฤษฎี ถ้าไม่ ถามว่าอยากดูแนวระทึกขวัญไหม (ดูเบรกกิ้ง แบด) ถ้าไม่ ถามว่าอยากดูแนวสืบสวนไหม (ดูอเมริกัน ไครม์ สตอรี่) ถ้าไม่อยากดูเลยให้ปิดทีวีแล้วทำอย่างอื่นต่อ',
+ rows:[[s('อยู่บ้าน','term')],[s('ดูทีวี','proc')],[s('อยากดูแนวตลกไหม?','dec')],[s('อยากดูแนวระทึกขวัญไหม?','dec','ไม่'),s('ดูบิ๊กแบงทฤษฎี','proc','ใช่')],[s('อยากดูแนวสืบสวนไหม?','dec','ไม่'),s('ดูเบรกกิ้ง แบด','proc','ใช่')],[s('ปิดทีวี','proc','ไม่'),s('ดูอเมริกัน ไครม์ สตอรี่','proc','ใช่')],[s('ทำอย่างอื่นต่อ','term')]],extra:['เปลี่ยนช่องไปเรื่อย ๆ'],
+ e:'เป็นการตัดสินใจหลายเงื่อนไขต่อกัน ตรวจทีละข้อจากบนลงล่าง ถ้าเงื่อนไขไหนเป็นจริงก็ทำทางนั้น ถ้าไม่จริงทุกข้อจึงไปปิดทีวี'},
+{y:'sel',t:'แบ่งช่วงอายุสมาชิก',p:'จงเขียนผังงานรับค่าอายุของสมาชิกในครอบครัว ถ้าอายุ <= 14 แสดงผลว่า เด็ก ถ้าไม่ใช่ให้ตรวจต่อว่าอายุ >= 18 หรือไม่ ถ้าใช่แสดงผลว่า ผู้ใหญ่ ถ้าไม่ใช่แสดงผลว่า วัยรุ่น',
+ rows:[[s(A,'term')],[s('รับค่าอายุของสมาชิก','io')],[s('อายุ <= 14 ?','dec')],[s('อายุ >= 18 ?','dec','ไม่ใช่'),s('แสดงผล “เด็ก”','io','ใช่')],[s('แสดงผล “วัยรุ่น”','io','ไม่ใช่'),s('แสดงผล “ผู้ใหญ่”','io','ใช่')],[s('จบ','term')]],extra:['อายุ = 14 ?'],
+ e:'อายุ 0–14 เป็นเด็ก 15–17 เป็นวัยรุ่น และ 18 ขึ้นไปเป็นผู้ใหญ่ เงื่อนไขที่สองตรวจเฉพาะคนที่อายุเกิน 14 แล้ว'},
+{y:'sel',t:'คุณสอบผ่านไหม',p:'จงเขียนผังงานรับคะแนนการทดสอบ แล้วตัดเกรดดังนี้ 90 ขึ้นไป ยอดเยี่ยม, 80–89 ดีมาก, 70–79 ดี, 60–69 ผ่าน (Pass), ต่ำกว่า 60 ไม่ผ่าน (F) โดยตรวจด้วยเงื่อนไข “คะแนน < 90 ?” ไล่ลงไปทีละช่วง แล้วแสดงผลการสอบ',
+ rows:[[s(A,'term')],[s('ใส่คะแนนการทดสอบ','io')],[s('คะแนน < 90 ?','dec')],[s('คะแนน < 80 ?','dec','ใช่'),s('ผลการสอบ = ยอดเยี่ยม','proc','ไม่ใช่')],[s('คะแนน < 70 ?','dec','ใช่'),s('ผลการสอบ = ดีมาก','proc','ไม่ใช่')],[s('คะแนน < 60 ?','dec','ใช่'),s('ผลการสอบ = ดี','proc','ไม่ใช่')],[s('ผลการสอบ = ไม่ผ่าน (F)','proc','ใช่'),s('ผลการสอบ = ผ่าน (Pass)','proc','ไม่ใช่')],[s('แสดงผลการสอบ','io')],[s('จบ','term')]],extra:['คะแนน > 90 ?'],
+ e:'ทุกเงื่อนไขใช้ “น้อยกว่า” ทางไม่ใช่จึงได้เกรดของช่วงนั้น เช่น คะแนน 90 พอดี ไม่น้อยกว่า 90 จึงได้ยอดเยี่ยม ทุกทางมาบรรจบที่แสดงผลการสอบ'},
+{y:'sel',t:'จะกินอะไรตอนเที่ยงดี',p:'วันอาทิตย์หิวมาก ถ้าคุณแม่อยู่บ้านก็กินมื้อเที่ยงได้เลย ถ้าไม่อยู่ให้เปิดตู้เย็นหาของกิน ถ้ามีของกินก็กินได้เลย ถ้าไม่มี ถามว่าอยากออกไปข้างนอกไหม อยากออกไปให้หาร้านอาหาร ขี้เกียจให้สั่งอาหารเดลิเวอรี่ แล้วตรวจว่ามีอาหารให้กินแล้วไหม ถ้ามีก็กินได้เลย ถ้าไม่มีก็ยังหิวอยู่',
+ rows:[[s('หิวมากเลย','term')],[s('คุณแม่อยู่บ้านไหม?','dec')],[s('เปิดตู้เย็นหาของกิน','proc','ไม่'),n('ไปที่ “กินมื้อเที่ยงได้เลย”','ใช่')],[s('มีอะไรให้กินไหม?','dec'),null],[s('อยากออกไปข้างนอกไหม?','dec','ไม่'),s('กินมื้อเที่ยงได้เลย','term','ใช่')],[s('สั่งอาหารเดลิเวอรี่','proc','ขี้เกียจ'),s('หาร้านอาหาร','proc','อยากออกไป')],[s('มีอาหารให้กินแล้วไหม?','dec')],[s('ยังหิวอยู่','term','ไม่'),n('ไปที่ “กินมื้อเที่ยงได้เลย”','ใช่')]],extra:['ทำอาหารกินเอง'],
+ e:'ผังงานนี้มีจุดสิ้นสุด 2 จุด คือ “กินมื้อเที่ยงได้เลย” และ “ยังหิวอยู่” หลายเส้นทางมารวมกันที่จุดเดียวกันได้ เช่น ทางที่คุณแม่อยู่บ้านและทางที่ได้อาหารแล้ว'},
+{y:'loop',t:'ควรทำการบ้านตอนนี้ไหม',p:'ตรวจว่ามีการบ้านหรือเปล่า ถ้าไม่มีอาจจะโกหกอยู่ก็ได้นะเนี่ย ถ้ามี ตรวจว่าถึงกำหนดส่งภายใน 12 ชั่วโมงไหม ถ้าใช่ให้เริ่มทำเลย ถ้าไม่ใช่ให้ดูทีวี เล่นเกมมือถือ เล่นโซเชียลมีเดีย แล้ววนกลับไปตรวจกำหนดส่งใหม่',
+ rows:[[s('มีการบ้านหรือเปล่า?','dec')],[s('ถึงกำหนดส่งภายใน 12 ชั่วโมงไหม?','dec','มี'),s('อาจจะโกหกอยู่ก็ได้นะเนี่ย','proc','ไม่')],[s('ดูทีวี','proc','ไม่ใช่'),s('เริ่มทำเลย!','proc','ใช่')],[s('เล่นเกมมือถือ','proc'),null],[s('เล่นโซเชียลมีเดีย','proc'),null],[n('↺ วนกลับไปช่องที่ 2'),null]],extra:['ส่งการบ้านแล้ว'],
+ e:'เป็นการทำซ้ำที่ตรวจเงื่อนไขก่อนทำ ถ้ายังไม่ถึงกำหนดส่งจะวนดูทีวี เล่นเกม เล่นโซเชียลไปเรื่อย ๆ และออกจากการวนได้ทางเดียวคือเมื่อเงื่อนไขเป็นจริง'},
+{y:'loop',t:'เลือกชุดเดรสโปรด',p:'ไปห้าง หยุดที่ร้านขายชุดเดรส เดินดูและเลือกชุดที่ชอบ แล้วลองสวม ถ้าขนาดไม่พอดีให้เลือกชุดอื่นแล้วลองสวมใหม่ ถ้าพอดีและเหมาะกับตัวเองให้เช็คราคา ราคาโอเคให้ซื้อเลย ถ้าไม่เหมาะหรือราคาไม่โอเค (และหลังซื้อแล้ว) ให้ถามว่าอยากเห็นชุดอื่นอีกไหม อยากเห็นให้กลับไปเดินดู ไม่อยากให้ไปยังร้านอื่นถัดไป',
+ rows:[[s(A,'term')],[s('ไปที่ห้างสรรพสินค้า','proc')],[s('หยุดที่ร้านขายชุดเดรส','proc')],[s('เดินดูชุดเดรสและเลือกชุดที่ชอบ','proc')],[s('ลองสวม','proc')],[s('ขนาดพอดีไหม?','dec')],[s('เหมาะกับตัวเองไหม?','dec','ใช่'),s('เลือกชุดอื่น','proc','ไม่')],[s('เช็คราคา','proc','ใช่'),n('↺ วนกลับไปช่องที่ 5')],[s('ราคาโอเคไหม?','dec'),null],[s('ซื้อเลย','proc','ใช่'),s('อยากเห็นชุดอื่นอีกไหม?','dec','ไม่')],[n('ไปที่ช่องที่ 12'),n('↺ ใช่: วนกลับไปช่องที่ 4')],[null,s('ไปยังร้านอื่นถัดไป','proc','ไม่')]],extra:['ซื้อทุกชุดที่ลอง'],
+ e:'ผังงานนี้มีการวนซ้ำ 2 วง วงเล็กคือเลือกชุดอื่นแล้วกลับไปลองสวม (ช่อง 5) วงใหญ่คืออยากเห็นชุดอื่นแล้วกลับไปเดินดู (ช่อง 4) ทาง “ไม่เหมาะกับตัวเอง” ก็ไปที่ช่อง 12 เช่นกัน'}
+];
+const SYM={term:['จุดเริ่มต้น / สิ้นสุด','#ffd6e4','#e0508a'],proc:['กระบวนการ / ประมวลผล','#d9eeff','#2f7fd0'],io:['รับข้อมูล / แสดงผล','#e8dcff','#7b55d6'],dec:['การตัดสินใจ','#d5f5cf','#2f9e44']};
+const SHAPE={term:'<rect x="2" y="2" width="196" height="56" rx="28"/>',proc:'<rect x="2" y="2" width="196" height="56" rx="3"/>',io:'<polygon points="26,2 198,2 174,58 2,58"/>',dec:'<polygon points="100,2 198,30 100,58 2,30"/>'};
+function shape(k){
+  if(!k)return '<svg viewBox="0 0 200 60" preserveAspectRatio="none"><rect x="2" y="2" width="196" height="56" rx="12" fill="#f4f7fc" stroke="#9aa8c7" stroke-width="3" stroke-dasharray="8 6" vector-effect="non-scaling-stroke"/></svg>';
+  return `<svg viewBox="0 0 200 60" preserveAspectRatio="none"><g fill="${SYM[k][1]}" stroke="${SYM[k][2]}" stroke-width="3" stroke-linejoin="round">${SHAPE[k].replace('/>',' vector-effect="non-scaling-stroke"/>')}</g></svg>`;
+}
+const $=id=>document.getElementById(id);
+const starSvg=on=>`<svg class="star${on?' on':''}" viewBox="0 0 24 24"><use href="#i-star"/></svg>`;
+const S={m:0,slots:[],fill:[],bank:[],act:0,tries:0,done:false,sound:true,best:[]};
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+S.best=load('flow-quest-best',[]);S.rec=load('flow-quest-rec',[]);S.who=load('flow-quest-who',null);
+const save=()=>{try{localStorage.setItem('flow-quest-best',JSON.stringify(S.best));localStorage.setItem('flow-quest-rec',JSON.stringify(S.rec))}catch(e){}};
+/* บันทึกผลภารกิจ: เก็บผลที่ดาวมากที่สุด */
+function record(i,r){const o=S.rec[i];r.seen=!!(r.seen||(o&&o.seen));if(!o||r.stars>o.stars||(!o.stars&&!r.stars))S.rec[i]=r;save()}
+
+/* ----- เสียง ----- */
+let ac=null;
+function tone(f,d,delay=0,type='triangle'){
+  if(!S.sound)return;
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+    const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+delay;
+    o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.16,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}
+}
+const sfx={pick:()=>tone(520,.09),put:()=>tone(660,.1),no:()=>{tone(220,.2,0,'sawtooth');tone(165,.35,.16,'sawtooth')},
+  win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.25,i*.14))};
+
+/* ----- แผนที่ ----- */
+$('legend').innerHTML=Object.keys(SYM).map(k=>`<div><span class="shape">${shape(k)}</span><b>${SYM[k][0]}</b></div>`).join('');
+function drawMap(){
+  $('map').innerHTML=Object.keys(TYPES).map(y=>`<h2 class="sec">${TYPES[y]}</h2><div class="map">`+M.map((m,i)=>{if(m.y!==y)return '';const b=S.best[i]||0;
+    return `<button class="stop${b?' done':''}" data-i="${i}"><span class="no">ภารกิจ ${i+1}</span><h3>${m.t}</h3><span class="stars" aria-label="${b} ดาว">${[1,2,3].map(k=>starSvg(k<=b)).join('')}</span></button>`}).join('')+'</div>').join('');
+  $('total').textContent=S.best.reduce((a,b)=>a+(b||0),0)+' / '+M.length*3+' ดาว';
+}
+$('map').addEventListener('click',e=>{const b=e.target.closest('.stop');if(b){sfx.pick();start(+b.dataset.i)}});
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id===id))}
+function goHome(){$('over').classList.remove('on');drawMap();show('home')}
+
+/* ----- เล่น ----- */
+function start(i){
+  const m=M[i];S.m=i;S.slots=m.rows.flat().filter(c=>c&&c.x);
+  S.fill=S.slots.map(()=>({c:-1,s:null,st:''}));
+  S.bank=S.slots.map(c=>c.x).concat(m.extra).sort(()=>Math.random()-.5);
+  S.act=0;S.tries=0;S.done=false;S.checked=false;
+  $('hType').textContent='ภารกิจ '+(i+1)+' · '+TYPES[m.y];$('hName').textContent=m.t;$('task').textContent=m.p;
+  msg('');$('over').classList.remove('on');show('play');draw();
+}
+function msg(t,c){$('msg').textContent=t;$('msg').className='msg'+(c?' '+c:'')}
+function draw(){
+  const m=M[S.m];let k=0,html='';
+  m.rows.forEach((row,r)=>{
+    html+=`<div class="row${row.length>1?' two':''}">`;
+    row.forEach(c=>{
+      html+='<div class="cell">';
+      if(c){
+        if(r>0&&!(c.n&&!c.l))html+='<span class="arrow">▼</span>';
+        if(c.l)html+=`<span class="lab${(c.l===F||/^ไม่/.test(c.l))?' f':''}">${c.l}</span>`;
+        if(c.n)html+=`<span class="note">${c.n}</span>`;
+        else{const f=S.fill[k],txt=f.c>=0?S.bank[f.c]:'';
+          html+=`<button class="slot${k===S.act&&!S.done?' act':''}${f.st==='ok'?' ok':''}${f.st&&f.st!=='ok'?' bad':''}" data-k="${k}" data-s="${f.s||''}"${S.done?' disabled':''}><span class="num">${k+1}</span>${shape(f.s)}<span${txt?'':' class="ph"'}></span></button><span class="fix">${f.st&&f.st!=='ok'?f.st:''}</span>`;
+          k++}
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  $('canvas').innerHTML=html;
+  $('canvas').querySelectorAll('.slot').forEach(b=>{const f=S.fill[+b.dataset.k];b.lastElementChild.textContent=f.c>=0?S.bank[f.c]:'แตะเพื่อเติมช่องนี้'});
+  const a=S.fill[S.act];
+  $('boxH').textContent='ช่องที่ '+(S.act+1)+': เลือกสัญลักษณ์';
+  $('syms').innerHTML=Object.keys(SYM).map(key=>`<button class="sym${a.s===key?' on':''}" data-s="${key}"${S.done?' disabled':''}><span class="shape">${shape(key)}</span>${SYM[key][0]}</button>`).join('');
+  const used=new Set(S.fill.map(f=>f.c));
+  $('cards').innerHTML='';
+  S.bank.forEach((t,ci)=>{const b=document.createElement('button');b.className='card'+(used.has(ci)?' used':'');b.textContent=t;b.dataset.c=ci;b.disabled=S.done;$('cards').appendChild(b)});
+  $('bCheck').disabled=S.done;$('bShow').hidden=!S.checked||S.done;
+}
+function advance(){
+  const a=S.fill[S.act];if(a.c<0||!a.s)return;
+  for(let d=1;d<=S.slots.length;d++){const j=(S.act+d)%S.slots.length,f=S.fill[j];if(f.c<0||!f.s){S.act=j;return}}
+}
+$('canvas').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b||S.done)return;S.act=+b.dataset.k;sfx.pick();draw()});
+$('syms').addEventListener('click',e=>{const b=e.target.closest('.sym');if(!b||S.done)return;const a=S.fill[S.act];a.s=b.dataset.s;a.st='';sfx.put();advance();draw()});
+$('cards').addEventListener('click',e=>{const b=e.target.closest('.card');if(!b||S.done)return;const ci=+b.dataset.c;
+  S.fill.forEach(f=>{if(f.c===ci){f.c=-1;f.st=''}});const a=S.fill[S.act];a.c=ci;a.st='';sfx.put();advance();draw()});
+function check(){
+  if(S.done)return;
+  const empty=S.fill.filter(f=>f.c<0||!f.s).length;
+  if(empty){msg('ยังเติมไม่ครบ เหลืออีก '+empty+' ช่อง (ต้องมีทั้งสัญลักษณ์และข้อความ)','no');sfx.no();return}
+  let ok=0;S.checked=true;
+  S.fill.forEach((f,k)=>{const c=S.slots[k],tx=S.bank[f.c]===c.x,sy=f.s===c.s;
+    f.st=tx&&sy?'ok':!tx&&!sy?'แก้สัญลักษณ์และข้อความ':!sy?'แก้สัญลักษณ์':'แก้ข้อความ';if(tx&&sy)ok++});
+  if(ok===S.slots.length){
+    S.done=true;const stars=3-Math.min(2,S.tries);S.best[S.m]=Math.max(S.best[S.m]||0,stars);record(S.m,{stars,checks:S.tries+1,seen:false});sfx.win();
+    msg('ผังงานถูกต้องทั้งหมด','yes');draw();result(stars);
+  }else{S.tries++;sfx.no();const bad=S.fill.findIndex(f=>f.st!=='ok');S.act=bad;
+    msg('ถูก '+ok+' จาก '+S.slots.length+' ช่อง ดูคำแนะนำใต้ช่องสีแดงแล้วแก้ไข หรือกดดูเฉลย','no');draw()}
+}
+function reveal(){
+  S.fill.forEach((f,k)=>{f.c=S.bank.indexOf(S.slots[k].x);f.s=S.slots[k].s;f.st='ok'});
+  S.done=true;record(S.m,{stars:0,checks:S.tries,seen:true});msg('เฉลย: '+M[S.m].e+' (ดูเฉลยแล้วไม่ได้ดาว กดเริ่มใหม่เพื่อลองทำเอง)','yes');draw();
+}
+function result(stars){
+  const last=S.m===M.length-1;
+  $('rH').textContent='ภารกิจ '+(S.m+1)+' สำเร็จ!';
+  $('rStars').innerHTML=[1,2,3].map(k=>starSvg(k<=stars)).join('');
+  $('rP').textContent=(S.tries?'ตรวจ '+(S.tries+1)+' ครั้งจึงถูก · ':'ถูกตั้งแต่ครั้งแรก · ')+M[S.m].e;
+  const row=$('rRow');row.innerHTML='';
+  const add=(t,c,fn)=>{const b=document.createElement('button');b.className='btn '+c;b.textContent=t;b.onclick=()=>{sfx.pick();fn()};row.appendChild(b);return b};
+  const first=last?null:add('ภารกิจถัดไป','g',()=>start(S.m+1));
+  const see=add('ดูผังงานของฉัน','',()=>$('over').classList.remove('on'));
+  add('กลับแผนที่','w',goHome);
+  $('over').classList.add('on');(first||see).focus();
+}
+$('bCheck').addEventListener('click',check);
+$('bShow').addEventListener('click',()=>{sfx.pick();reveal()});
+$('bReset').addEventListener('click',()=>{sfx.pick();start(S.m)});
+$('tExit').addEventListener('click',goHome);
+$('tSound').addEventListener('click',()=>{S.sound=!S.sound;$('tSound').setAttribute('aria-pressed',S.sound);sfx.pick()});
+/* ---------- ผู้เล่น ---------- */
+function showWho(){$('pName').textContent=S.who?`${S.who.name} เลขที่ ${S.who.no} ${S.who.room}`:'-'}
+function openName(){const w=S.who||{};$('fName').value=w.name||'';$('fNo').value=w.no||'';$('fRoom').value=w.room||'';$('fErr').textContent='';$('nameDlg').classList.add('on');$('fName').focus()}
+$('nameForm').addEventListener('submit',e=>{e.preventDefault();
+  const w={name:$('fName').value.trim().replace(/\s+/g,' '),no:$('fNo').value.trim(),room:$('fRoom').value.trim()};
+  if(!w.name||!w.no||!w.room){$('fErr').textContent='กรอกชื่อ เลขที่ และชั้น/ห้องให้ครบ';return}
+  S.who=w;try{localStorage.setItem('flow-quest-who',JSON.stringify(w))}catch(e){}
+  $('nameDlg').classList.remove('on');showWho();sfx.pick()});
+$('bEditName').addEventListener('click',openName);
+
+/* ---------- ใบส่งคะแนน + รหัสตรวจ ---------- */
+const SALT='21900-1002|flow|v1';
+function code(str){let h=0x811c9dc5,g=0x9e3779b9;for(const ch of SALT+str){const c=ch.codePointAt(0);h=Math.imul(h^c,16777619)>>>0;g=Math.imul(g^c,2246822519)>>>0}
+  return ((h>>>0).toString(36).toUpperCase().padStart(7,'0').slice(-4)+'-'+(g>>>0).toString(36).toUpperCase().padStart(7,'0').slice(-4))}
+function lines(){
+  const out=[];let tot=0,done=0;
+  M.forEach((m,i)=>{const r=S.rec[i];let t;
+    if(!r)t='ยังไม่ทำ';
+    else if(r.seen&&!r.stars)t='0 ดาว (ดูเฉลย)';
+    else{t=`${r.stars} ดาว (ตรวจ ${r.checks} ครั้ง${r.seen?' · เคยดูเฉลยก่อนทำ':''})`;tot+=r.stars;done++}
+    out.push(`ภารกิจ ${i+1} ${m.t}: ${t}`)});
+  return {out,tot,done};
+}
+function slip(){
+  const w=S.who,{out,tot,done}=lines();
+  const body=[`ชื่อ: ${w.name}`,`เลขที่: ${w.no}`,`ชั้น/ห้อง: ${w.room}`,...out,`รวม: ${tot}/${M.length*3} ดาว · ผ่าน ${done}/${M.length} ภารกิจ`];
+  return ['ใบส่งคะแนน ผจญภัยดินแดนอัลกอริทึม (21900-1002)',...body,`รหัสตรวจ: ${code(body.join('\n'))}`].join('\n');
+}
+$('bSlip').addEventListener('click',()=>{sfx.pick();if(!S.who){openName();return}
+  $('slipText').value=slip();$('slipMsg').textContent='';$('slipMsg').className='err';$('slipDlg').classList.add('on')});
+$('bCopy').addEventListener('click',async()=>{const t=$('slipText');
+  try{await navigator.clipboard.writeText(t.value);$('slipMsg').textContent='คัดลอกแล้ว นำไปวางส่งครูได้เลย';$('slipMsg').className='err ok'}
+  catch(e){t.focus();t.select();$('slipMsg').textContent='คัดลอกอัตโนมัติไม่ได้ ข้อความถูกเลือกไว้แล้ว ให้กดค้างแล้วเลือกคัดลอก';$('slipMsg').className='err'}});
+$('bSlipClose').addEventListener('click',()=>$('slipDlg').classList.remove('on'));
+
+/* ---------- ครูตรวจใบคะแนน ---------- */
+$('bTeacher').addEventListener('click',()=>{sfx.pick();$('teachMsg').textContent='';$('teachDlg').classList.add('on');$('teachText').focus()});
+$('bTeachClose').addEventListener('click',()=>$('teachDlg').classList.remove('on'));
+$('bVerify').addEventListener('click',()=>{
+  const ls=$('teachText').value.replace(/\r/g,'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const a=ls.findIndex(x=>x.startsWith('ชื่อ:')),z=ls.findIndex(x=>x.startsWith('รหัสตรวจ:')),m=$('teachMsg');
+  if(a<0||z<a){m.className='err';m.textContent='ไม่พบใบคะแนน ให้วางข้อความตั้งแต่บรรทัด "ชื่อ:" ถึง "รหัสตรวจ:"';return}
+  const body=ls.slice(a,z).join('\n'),given=ls[z].slice(9).trim().toUpperCase(),tot=(ls.slice(a,z).find(x=>x.startsWith('รวม:'))||'').slice(4).trim();
+  if(code(body)===given){m.className='err ok';m.textContent=`ใบคะแนนถูกต้อง · ${ls[a].slice(5).trim()} · ${tot}`}
+  else{m.className='err';m.textContent='รหัสไม่ตรง ใบคะแนนนี้ถูกแก้ไข หรือคัดลอกมาไม่ครบ'}});
+
+/* ปิดหน้าต่างด้วย Esc (ยกเว้นหน้าลงชื่อครั้งแรก) */
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;['slipDlg','teachDlg'].forEach(id=>$(id).classList.remove('on'));if(S.who)$('nameDlg').classList.remove('on')});
+
+drawMap();showWho();if(!S.who)openName();
+</script>
+</body>
+</html>
