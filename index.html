@@ -138,6 +138,18 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .res p{margin:0;line-height:1.55}
 .res .row2{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 
+/* ---------- หน้าเข้าสู่ระบบ ---------- */
+.nw{white-space:nowrap}
+#login{overflow:auto;place-items:center;padding:24px 16px}
+.login-in{width:min(980px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:28px;align-items:center}
+.login-side{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.login-side .logo{transform:rotate(-2deg)}
+.login-side p{margin:0;max-width:40ch;line-height:1.6;color:var(--ink-soft);font-size:1.05rem}
+.login-bot{display:flex;align-items:flex-end;gap:14px}
+.login-bot .bubble{background:var(--card);border:3px solid var(--edge);border-radius:18px 18px 18px 4px;padding:10px 14px;font-family:var(--display);font-size:.98rem;line-height:1.45;max-width:30ch}
+.login-card{background:var(--card);border:5px solid var(--edge);border-radius:28px;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 0 3px #7ddc00,0 0 22px rgba(125,220,0,.4),0 18px 36px rgba(0,0,0,.5)}
+.login-card h2{font-size:1.6rem;font-weight:600;color:var(--sun)}
+@media (max-width:820px){.login-in{grid-template-columns:1fr}.login-side{align-items:center;text-align:center}.login-bot{display:none}}
 /* ---------- ผู้เล่นและใบส่งคะแนน ---------- */
 .player{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:.95rem}
 .player b{font-family:var(--display);font-weight:500}
@@ -171,18 +183,53 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 </div>
 
 <div id="app">
-  <main id="home" class="screen on">
+  <main id="login" class="screen">
+    <div class="login-in">
+      <div class="login-side">
+        <div class="sign logo">
+          <small>ภารกิจฝึกเขียนผังงาน (Flowchart) · รหัสวิชา 21900-1002</small>
+          <h1><span class="nw">ผจญภัย</span><wbr><b><span class="nw">ดินแดน</span><wbr><span class="nw">อัลกอริทึม</span></b></h1>
+        </div>
+        <p>โครงสร้างข้อมูลและอัลกอริทึมเบื้องต้น · 15 ภารกิจ ต่อผังงานด้วยตัวเอง แล้วส่งคะแนนให้ครู</p>
+        <div class="login-bot" aria-hidden="true">
+          <svg viewBox="0 0 64 72" width="92" height="104">
+            <line x1="32" y1="4" x2="32" y2="14" stroke="#f4effe" stroke-width="3"/><circle cx="32" cy="5" r="4" fill="#ff4d6d"/>
+            <rect x="12" y="12" width="40" height="28" rx="10" fill="#fff" stroke="#1f2f66" stroke-width="3"/>
+            <rect x="18" y="19" width="28" height="14" rx="7" fill="#16376f"/>
+            <circle cx="26" cy="26" r="3.5" fill="#7df9ff"/><circle cx="38" cy="26" r="3.5" fill="#7df9ff"/>
+            <rect x="18" y="42" width="28" height="20" rx="7" fill="#ffc533" stroke="#1f2f66" stroke-width="3"/>
+            <rect x="21" y="62" width="8" height="9" rx="3" fill="#f4effe"/><rect x="35" y="62" width="8" height="9" rx="3" fill="#f4effe"/>
+          </svg>
+          <div class="bubble">ใส่รหัสห้องที่ครูแจก แล้วออกผจญภัยกันเลย!</div>
+        </div>
+      </div>
+      <form class="login-card form" id="loginForm" aria-labelledby="lH" novalidate>
+        <h2 id="lH">เข้าสู่ระบบ</h2>
+        <label for="fNo">รหัสนักศึกษา<input id="fNo" inputmode="numeric" autocomplete="username" maxlength="20"></label>
+        <label for="fName">ชื่อ-นามสกุล<input id="fName" autocomplete="name" maxlength="60"></label>
+        <div class="two">
+          <label for="fRoom">ชั้น/ห้อง<input id="fRoom" maxlength="20" placeholder="เช่น ปวช.1/2"></label>
+          <label for="fCode">รหัสห้อง<input id="fCode" autocomplete="off" autocapitalize="characters" maxlength="20" placeholder="ครูเป็นผู้แจก"></label>
+        </div>
+        <p class="err" id="fErr" aria-live="polite"></p>
+        <button class="btn g" type="submit">เข้าสู่ระบบ</button>
+        <p class="hint">คะแนนจะบันทึกแยกตามรหัสนักศึกษาในเครื่องนี้ ถ้าใช้เครื่องร่วมกับเพื่อน กด “ออกจากระบบ” ทุกครั้งที่เล่นเสร็จ</p>
+      </form>
+    </div>
+  </main>
+
+  <main id="home" class="screen">
     <div class="home-in">
       <div class="title-row">
         <div class="sign logo">
           <small>ภารกิจฝึกเขียนผังงาน (Flowchart) · รหัสวิชา 21900-1002</small>
-          <h1>ผจญภัย<b>ดินแดนอัลกอริทึม</b></h1>
+          <h1><span class="nw">ผจญภัย</span><wbr><b><span class="nw">ดินแดน</span><wbr><span class="nw">อัลกอริทึม</span></b></h1>
         </div>
         <div class="course">
           <strong>โครงสร้างข้อมูลและอัลกอริทึมเบื้องต้น</strong>
           <span>หน่วยอัลกอริทึม · 15 ภารกิจ ต่อผังงานด้วยตัวเอง</span>
           <div class="total"><svg class="star on" viewBox="0 0 24 24"><use href="#i-star"/></svg><span id="total">0 / 45 ดาว</span></div>
-          <div class="player">ผู้เล่น: <b id="pName">-</b><button class="linkbtn" id="bEditName">แก้ชื่อ</button></div>
+          <div class="player">ผู้เล่น: <b id="pName">-</b><button class="linkbtn" id="bEditName">ออกจากระบบ</button></div>
         </div>
       </div>
       <div class="howto">
@@ -236,17 +283,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
   </main>
 </div>
 
-<div class="over" id="nameDlg"><form class="res form" id="nameForm" role="dialog" aria-modal="true" aria-labelledby="nH">
-  <h2 id="nH">ลงชื่อก่อนเริ่มภารกิจ</h2>
-  <p class="hint">ชื่อนี้จะแสดงในใบส่งคะแนนให้ครู</p>
-  <label for="fName">ชื่อ-นามสกุล<input id="fName" autocomplete="name" maxlength="60" required></label>
-  <div class="two">
-    <label for="fNo">เลขที่<input id="fNo" inputmode="numeric" maxlength="6" required></label>
-    <label for="fRoom">ชั้น/ห้อง<input id="fRoom" maxlength="20" placeholder="เช่น ปวช.1/2" required></label>
-  </div>
-  <p class="err" id="fErr"></p>
-  <button class="btn g" type="submit">เริ่มภารกิจ</button>
-</form></div>
+
 
 <div class="over" id="slipDlg"><div class="res form" role="dialog" aria-modal="true" aria-labelledby="sH">
   <h2 id="sH">ใบส่งคะแนน</h2>
@@ -335,8 +372,10 @@ const $=id=>document.getElementById(id);
 const starSvg=on=>`<svg class="star${on?' on':''}" viewBox="0 0 24 24"><use href="#i-star"/></svg>`;
 const S={m:0,slots:[],fill:[],bank:[],act:0,tries:0,done:false,sound:true,best:[]};
 const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
-S.best=load('flow-quest-best',[]);S.rec=load('flow-quest-rec',[]);S.who=load('flow-quest-who',null);
-const save=()=>{try{localStorage.setItem('flow-quest-best',JSON.stringify(S.best));localStorage.setItem('flow-quest-rec',JSON.stringify(S.rec))}catch(e){}};
+S.who=load('flow-quest-who',null);if(!S.who||S.who.v!==2)S.who=null;
+function loadProgress(){const id=S.who?S.who.no:'';S.best=load('flow-quest-best:'+id,[]);S.rec=load('flow-quest-rec:'+id,[])}
+loadProgress();
+const save=()=>{if(!S.who)return;const id=S.who.no;try{localStorage.setItem('flow-quest-best:'+id,JSON.stringify(S.best));localStorage.setItem('flow-quest-rec:'+id,JSON.stringify(S.rec))}catch(e){}};
 /* บันทึกผลภารกิจ: เก็บผลที่ดาวมากที่สุด */
 function record(i,r){const o=S.rec[i];r.seen=!!(r.seen||(o&&o.seen));if(!o||r.stars>o.stars||(!o.stars&&!r.stars))S.rec[i]=r;save()}
 
@@ -444,14 +483,20 @@ $('bReset').addEventListener('click',()=>{sfx.pick();start(S.m)});
 $('tExit').addEventListener('click',goHome);
 $('tSound').addEventListener('click',()=>{S.sound=!S.sound;$('tSound').setAttribute('aria-pressed',S.sound);sfx.pick()});
 /* ---------- ผู้เล่น ---------- */
-function showWho(){$('pName').textContent=S.who?`${S.who.name} เลขที่ ${S.who.no} ${S.who.room}`:'-'}
-function openName(){const w=S.who||{};$('fName').value=w.name||'';$('fNo').value=w.no||'';$('fRoom').value=w.room||'';$('fErr').textContent='';$('nameDlg').classList.add('on');$('fName').focus()}
-$('nameForm').addEventListener('submit',e=>{e.preventDefault();
-  const w={name:$('fName').value.trim().replace(/\s+/g,' '),no:$('fNo').value.trim(),room:$('fRoom').value.trim()};
-  if(!w.name||!w.no||!w.room){$('fErr').textContent='กรอกชื่อ เลขที่ และชั้น/ห้องให้ครบ';return}
+const ROOMKEY='J7PW-YX84';
+function showWho(){$('pName').textContent=S.who?`${S.who.name} (${S.who.no}) ${S.who.room}`:'-'}
+function showLogin(){$('over').classList.remove('on');['slipDlg','teachDlg'].forEach(id=>$(id).classList.remove('on'));
+  $('fErr').textContent='';$('fCode').value='';show('login');setTimeout(()=>$('fNo').focus(),50)}
+$('loginForm').addEventListener('submit',e=>{e.preventDefault();
+  const w={v:2,no:$('fNo').value.trim().replace(/\s+/g,''),name:$('fName').value.trim().replace(/\s+/g,' '),room:$('fRoom').value.trim()};
+  const miss=[!w.no&&'รหัสนักศึกษา',!w.name&&'ชื่อ-นามสกุล',!w.room&&'ชั้น/ห้อง',!$('fCode').value.trim()&&'รหัสห้อง'].filter(Boolean);
+  if(miss.length){$('fErr').textContent='กรอกให้ครบ: '+miss.join(', ');sfx.no();return}
+  if(!/^[0-9A-Za-z-]+$/.test(w.no)){$('fErr').textContent='รหัสนักศึกษาใช้ได้เฉพาะตัวเลขและตัวอักษรภาษาอังกฤษ';sfx.no();return}
+  if(code('room|'+$('fCode').value.trim().toUpperCase())!==ROOMKEY){$('fErr').textContent='รหัสห้องไม่ถูกต้อง ลองถามครูอีกครั้ง';sfx.no();$('fCode').select();return}
   S.who=w;try{localStorage.setItem('flow-quest-who',JSON.stringify(w))}catch(e){}
-  $('nameDlg').classList.remove('on');showWho();sfx.pick()});
-$('bEditName').addEventListener('click',openName);
+  loadProgress();showWho();drawMap();show('home');sfx.win()});
+$('bEditName').addEventListener('click',()=>{sfx.pick();S.who=null;try{localStorage.removeItem('flow-quest-who')}catch(e){}
+  loadProgress();$('fNo').value='';$('fName').value='';$('fRoom').value='';showLogin()});
 
 /* ---------- ใบส่งคะแนน + รหัสตรวจ ---------- */
 const SALT='21900-1002|flow|v1';
@@ -468,10 +513,10 @@ function lines(){
 }
 function slip(){
   const w=S.who,{out,tot,done}=lines();
-  const body=[`ชื่อ: ${w.name}`,`เลขที่: ${w.no}`,`ชั้น/ห้อง: ${w.room}`,...out,`รวม: ${tot}/${M.length*3} ดาว · ผ่าน ${done}/${M.length} ภารกิจ`];
+  const body=[`ชื่อ: ${w.name}`,`รหัสนักศึกษา: ${w.no}`,`ชั้น/ห้อง: ${w.room}`,...out,`รวม: ${tot}/${M.length*3} ดาว · ผ่าน ${done}/${M.length} ภารกิจ`];
   return ['ใบส่งคะแนน ผจญภัยดินแดนอัลกอริทึม (21900-1002)',...body,`รหัสตรวจ: ${code(body.join('\n'))}`].join('\n');
 }
-$('bSlip').addEventListener('click',()=>{sfx.pick();if(!S.who){openName();return}
+$('bSlip').addEventListener('click',()=>{sfx.pick();if(!S.who){showLogin();return}
   $('slipText').value=slip();$('slipMsg').textContent='';$('slipMsg').className='err';$('slipDlg').classList.add('on')});
 $('bCopy').addEventListener('click',async()=>{const t=$('slipText');
   try{await navigator.clipboard.writeText(t.value);$('slipMsg').textContent='คัดลอกแล้ว นำไปวางส่งครูได้เลย';$('slipMsg').className='err ok'}
@@ -490,9 +535,9 @@ $('bVerify').addEventListener('click',()=>{
   else{m.className='err';m.textContent='รหัสไม่ตรง ใบคะแนนนี้ถูกแก้ไข หรือคัดลอกมาไม่ครบ'}});
 
 /* ปิดหน้าต่างด้วย Esc (ยกเว้นหน้าลงชื่อครั้งแรก) */
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;['slipDlg','teachDlg'].forEach(id=>$(id).classList.remove('on'));if(S.who)$('nameDlg').classList.remove('on')});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;['slipDlg','teachDlg'].forEach(id=>$(id).classList.remove('on'))});
 
-drawMap();showWho();if(!S.who)openName();
+drawMap();showWho();if(S.who)show('home');else showLogin();
 </script>
 </body>
 </html>
